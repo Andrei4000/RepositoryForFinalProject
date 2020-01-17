@@ -27,7 +27,7 @@ namespace database3test
         {
             InitializeComponent();
             User = Username;
-            connection.ConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\andre\Desktop\users1.accdb;Persist Security Info=False;";
+            connection.ConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\Joro\Desktop\users1.accdb;Persist Security Info=False;";
             if (User == "admin")
             {
                 tabControl1.TabPages.Remove(tabPage2);
@@ -38,10 +38,11 @@ namespace database3test
                 tabControl1.TabPages.Remove(tabPage7);
                 tabControl1.TabPages.Remove(tabPage8);
                 // tabControl1.TabPages.Remove(tabPage9);
+                LoadReport();
             }
             else
             {
-                nrusers = users() - 1;
+                nrusers = users()-1;
                 LoadSchedule();
                 LoadGroceries();
                 updatemoneylabel();
@@ -52,8 +53,8 @@ namespace database3test
                 tabControl1.TabPages.Remove(tabPage1);
                 label17.Text = $"Welcome, {User}";
             }
-
-
+            
+            
         }
         public void updatemoneylabel()
         {
@@ -67,7 +68,8 @@ namespace database3test
                 OleDbDataReader reader = command.ExecuteReader();
                 while (reader.Read())
                 {
-                    lblGroceryMoney.Text = reader["Balance"].ToString() + "$";
+                    lblMyBalance.Text = reader["Balance"].ToString() + "$";
+                    lblGroceryMoney.Text = reader["Balance"].ToString()+"$";
                     usermoney = Convert.ToDouble(reader["Balance"]);
                 }
                 connection.Close();
@@ -92,7 +94,7 @@ namespace database3test
             }
             connection.Close();
             return togive;
-
+            
         }// WORKS
         public void LoadSchedule() // DELETE THE MESSAGEBOX
         {
@@ -104,16 +106,16 @@ namespace database3test
                 OleDbCommand command = new OleDbCommand();
                 command.Connection = connection;
                 string query = $"select * from Schedule where username='{User}'";
-                // MessageBox.Show(query); // TO DELETE
+               // MessageBox.Show(query); // TO DELETE
                 command.CommandText = query;
                 OleDbDataReader reader = command.ExecuteReader();
                 while (reader.Read())
                 {
 
                     if (reader["Typeof"].ToString() == "Garbage")
-                    {
-                        if (DateCompare(appDate, reader["Dateof"].ToString()))
-                            lbGarbage.Items.Add("You're on for: " + reader["Dateof"]);
+                    { 
+                        if(DateCompare(appDate,reader["Dateof"].ToString()))
+                        lbGarbage.Items.Add("You're on for: "+reader["Dateof"]); 
 
                     }
                     if (reader["Typeof"].ToString() == "Cleaning")
@@ -131,45 +133,43 @@ namespace database3test
         }
         public bool DateCompare(string sysdate, string databasedate)
         {
-
-
-            string[] words = sysdate.Split('/');
-            int i = 1;
-            string d1 = "", d2 = "", m1 = "", m2 = "", y1 = "", y2 = "";
-            foreach (var word in words)
-            {
-                if (i == 1)
+            
+           
+                string[] words = sysdate.Split('/');
+                int i = 1;
+                string d1="", d2="", m1="", m2="", y1="", y2="";
+                foreach (var word in words)
                 {
-                    d1 = word;
+                    if (i==1)
+                    {
+                        d1 = word;
+                    }else if(i==2)
+                    {
+                        m1 = word;
+                    }else if( i==3)
+                    {
+                        y1 = word;
+                    }
+                    i++;
                 }
-                else if (i == 2)
+                i = 1;
+                string[] words1 = databasedate.Split('/');
+                foreach (var word in words1)
                 {
-                    m1 = word;
+                    if (i == 1)
+                    {
+                        d2 = word;
+                    }
+                    else if (i == 2)
+                    {
+                        m2 = word;
+                    }
+                    else if (i == 3)
+                    {
+                        y2 = word;
+                    }
+                    i++;
                 }
-                else if (i == 3)
-                {
-                    y1 = word;
-                }
-                i++;
-            }
-            i = 1;
-            string[] words1 = databasedate.Split('/');
-            foreach (var word in words1)
-            {
-                if (i == 1)
-                {
-                    d2 = word;
-                }
-                else if (i == 2)
-                {
-                    m2 = word;
-                }
-                else if (i == 3)
-                {
-                    y2 = word;
-                }
-                i++;
-            }
             if (Convert.ToInt32(y2) > Convert.ToInt32(y1))
             { return true; }
             else
@@ -183,15 +183,15 @@ namespace database3test
                 }
             }
 
-
-
+                
+            
             return false;
         } // WORKS FINE
-
+        
         public void LoadGroceries() // DELETE MESSAGEBOX
         {
             lbGroceries.Items.Clear();
-
+            
             try
             {
                 connection.Open();
@@ -303,7 +303,7 @@ namespace database3test
                 //string query = $"update Users set FirstName='{txt_fname.Text}', LastName='{txt_lname.Text}', Pay ='{txt_pay.Text}' where ID={txt_id.Text}  ";
 
                 MessageBox.Show(query);
-                command.CommandText = query;
+                command.CommandText = query; 
                 command.ExecuteNonQuery();
                 MessageBox.Show("Data Edit Successful");
                 connection.Close();
@@ -374,26 +374,6 @@ namespace database3test
             {
                 MessageBox.Show($"Error, {ex}");
             }
-            try
-            {
-                connection.Open();
-                OleDbCommand command = new OleDbCommand();
-                command.Connection = connection;
-                string query = $"select * from Party WHERE PartyName='{cbParty.SelectedItem}'";
-                MessageBox.Show(query); // TO DELETE
-                command.CommandText = query;
-                OleDbDataReader reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-
-                    MessageBox.Show(reader["Description"].ToString());
-                }
-                connection.Close();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error, {ex}");
-            }
         }// works
 
         private void btnYes_Click(object sender, EventArgs e)
@@ -411,14 +391,14 @@ namespace database3test
                 string votes = "";
                 while (reader.Read())
                 {
-                    tosplit = reader["WhoVoted"].ToString();
+                    tosplit= reader["WhoVoted"].ToString();
                     votes = reader["YesVotes"].ToString();
                 }
-                string tosave = tosplit + $" {User}";// updating the who voted list
+                string tosave = tosplit+$" {User}";// updating the who voted list
                 // see who voted
                 bool alreadyvoted = false;
-                string[] words = tosplit.Split(' ');
-                foreach (var word in words)
+                string[] words=tosplit.Split(' ');
+                foreach(var word in words)
                 {
                     if (word == User)
                     {
@@ -427,16 +407,16 @@ namespace database3test
                 }
                 connection.Close();
                 // count the  votes
-
+               
                 votes = (Convert.ToInt32(votes) + 1).ToString();
                 if (alreadyvoted == true)
                     MessageBox.Show("You have already voted on this party");
                 else
                 {
                     connection.Open();
-                    OleDbCommand work = new OleDbCommand();
+                   OleDbCommand  work = new OleDbCommand();
                     work.Connection = connection;
-                    query = $"update Party set WhoVoted='{tosave}', YesVotes='{votes}' where PartyName='{cbParty.SelectedItem.ToString()}'";
+                     query = $"update Party set WhoVoted='{tosave}', YesVotes='{votes}' where PartyName='{cbParty.SelectedItem.ToString()}'";
                     MessageBox.Show(query);
                     work.CommandText = query;
                     work.ExecuteNonQuery();
@@ -444,7 +424,7 @@ namespace database3test
                     connection.Close();
                 }
 
-
+                
             }
             catch (Exception ex)
             {
@@ -488,7 +468,7 @@ namespace database3test
                 while (reader.Read())
                 {
 
-                    MessageBox.Show("The report was made on " + reader["Dateissued"] + " by the user " + reader["Username"] + " with the following description: " + reader["Description"]);
+                    MessageBox.Show("The report was made on "+reader["Dateissued"]+" by the user "+reader["Username"]+" with the following description: " +reader["Description"]);
                 }
                 connection.Close();
             }
@@ -573,33 +553,32 @@ namespace database3test
         {
             //split the string
             List<string> payers = new List<string>();
-            List<string> items = new List<string>();
+            List<string> items=new List<string>();
             List<string> itemsprice = new List<string>();
             List<string> buyers = new List<string>();
             double topay = 0;
             string whopaid = "";
             int nr = 0;
             foreach (var item in lbGroceries.SelectedItems)
-            {
+                {
                 int i = 1;
                 string[] words = item.ToString().Split(' ');
                 foreach (var word in words)
                 {
-                    if (i == 2)
+                  if(i==2)
                     {
                         items.Add(word);
-
-                    }
-                    else if (i == 8)
+                        
+                    }else if(i==8)
                     {
-                        topay = topay + Convert.ToDouble(word);
+                        topay= topay + Convert.ToDouble(word);
                         itemsprice.Add(word);
                     }
                     i++;
                 }
 
             }
-            if (topay > usermoney)
+            if(topay>usermoney)
             {
                 MessageBox.Show("Not enough money to pay for it all");
             }
@@ -608,14 +587,14 @@ namespace database3test
                 bool dontupdate = false;
                 foreach (string item in items)
                 {
-                    whopaid = "";
+                     whopaid = "";
                     {//pull the whopaid list
                         connection.Open();
                         OleDbCommand command = new OleDbCommand();
                         command.Connection = connection;
                         string query = $"select * from Groceries where Item='{item}'";
                         // MessageBox.Show(query);
-                        command.CommandText = query;
+                        command.CommandText=query;
                         OleDbDataReader reader = command.ExecuteReader();
                         while (reader.Read())
                         {
@@ -626,7 +605,7 @@ namespace database3test
                         connection.Close();
                     }
                     bool paidfor = false;
-                    nr = 0;
+                     nr = 0;
                     string[] words = whopaid.Split(' ');
                     foreach (string word in words)
                     {
@@ -636,10 +615,10 @@ namespace database3test
                             buyers.Add(word);
                         nr++;
                     }
-
+                    
                     if (!paidfor)
                     {
-
+                     
                     }
                     else
                     {
@@ -648,7 +627,7 @@ namespace database3test
                         break;
                     }
                 }
-                if (!dontupdate)
+                if(!dontupdate)
                 {// updating user's money
                     try
                     {
@@ -656,8 +635,8 @@ namespace database3test
                         usermoney = usermoney - topay;
                         OleDbCommand work = new OleDbCommand();
                         work.Connection = connection;
-                        string query = $"update Users set Balance='{usermoney.ToString("0.00")}' where Username='{User}'";
-                        //MessageBox.Show(query);
+                        string query = $"update Users set Balance='{usermoney}' where Username='{User}'";
+                         //MessageBox.Show(query);
                         work.CommandText = query;
                         work.ExecuteNonQuery();
                         // MessageBox.Show("Data Edit Successful");
@@ -681,8 +660,8 @@ namespace database3test
                         {
                             query = $"update Groceries set WhoPaid='{whopaid}',PaidFor='YES' where Item='{item}'";
                             { // giving the buyer their money back
-                                double moneytoadd = 0;
-
+                                double moneytoadd=0;
+                                
                                 OleDbCommand buymoney = new OleDbCommand();
                                 buymoney.Connection = connection;
                                 string toaddmoney = $"select * from Users where Username='{buyers[i]}'";
@@ -697,7 +676,7 @@ namespace database3test
                                 connection.Close();
                                 connection.Open();
 
-                                string toupdate = $"update Users set Balance='{moneytoadd.ToString("0.00") + Convert.ToDouble(itemsprice[i]) * (nrusers - 1)}' where Username='{buyers[i]}'";
+                                string toupdate= $"update Users set Balance='{moneytoadd+Convert.ToDouble(itemsprice[i])*(nrusers-1)}' where Username='{buyers[i]}'";
                                 OleDbCommand buy = new OleDbCommand();
                                 buy.Connection = connection;
                                 MessageBox.Show(toupdate);
@@ -719,14 +698,14 @@ namespace database3test
                 updatemoneylabel();
 
             }
-
-            //count how many paid for it
-
+            
+                //count how many paid for it
+               
         }
 
         private void Form2_Load(object sender, EventArgs e)
         {
-            // spArduino.Open();
+           spArduino.Open();
         }
 
         private void Form2_FormClosing(object sender, FormClosingEventArgs e)
@@ -743,7 +722,7 @@ namespace database3test
             {
                 double price = Convert.ToDouble(tbGPrice.Text);
                 int quantity = Convert.ToInt32(tbGQuantity.Text);
-                usermoney = usermoney - (price * quantity) / nrusers;
+                usermoney = usermoney  - (price * quantity) / nrusers;
                 try
                 {
                     connection.Open();
@@ -763,7 +742,7 @@ namespace database3test
                     connection.Open();
                     OleDbCommand work = new OleDbCommand();
                     work.Connection = connection;
-                    string query = $"update Users set Balance='{usermoney.ToString("0.00")}' where Username='{User}'";
+                    string query = $"update Users set Balance='{usermoney}' where Username='{User}'";
                     MessageBox.Show(query);
                     work.CommandText = query;
                     work.ExecuteNonQuery();
@@ -772,7 +751,7 @@ namespace database3test
                 }
                 catch (Exception ex)
                 {
-                    //MessageBox.Show($"Error, {ex}");
+                    MessageBox.Show($"Error, {ex}");
                 }
 
                 LoadGroceries();
@@ -786,10 +765,10 @@ namespace database3test
 
         private void Form2_FormClosed(object sender, FormClosedEventArgs e)
         {
-            // spArduino.Close();
+           spArduino.Close();
         }
 
-
+       
 
         private void timer2_Tick(object sender, EventArgs e)
         {
@@ -826,7 +805,7 @@ namespace database3test
 
         private void btnScheduleAdd_Click(object sender, EventArgs e)
         {
-            string date = dateTimePicker1.Value.ToString("dd/MM/yyyy");
+           string date = dateTimePicker1.Value.ToString("dd/MM/yyyy");
             string susername = "";
 
             {
@@ -913,9 +892,9 @@ namespace database3test
                     else
                     {
                         if (compare)
-                            lbHomepage.Items.Add(reader["PartyName"] + " doesnt have enough votes go vote for it");
+                         lbHomepage.Items.Add(reader["PartyName"] + " doesnt have enough votes go vote for it");
                     }
-
+                    
                 }
                 connection.Close();
             }
@@ -961,10 +940,55 @@ namespace database3test
                 MessageBox.Show($"Error, {ex}");
             }
         }
+
+        private void label24_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label6_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label18_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label25_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label16_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void lblGroceryMoney_Click_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label29_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void groupBox5_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void rtbDescParty_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }
-
-
-
+    
+    
+    
 
 

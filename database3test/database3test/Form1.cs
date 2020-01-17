@@ -17,18 +17,18 @@ namespace database3test
         public Form1()
         {
             InitializeComponent();
-            connection.ConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\andre\Desktop\users1.accdb;Persist Security Info=False;";
+            connection.ConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\Joro\Desktop\users1.accdb;Persist Security Info=False;";
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
             try
             {
-                connection.Open();
-                CheckConnection.Text = "Connection successful";
-                connection.Close();
+                //connection.Open();
+                //CheckConnection.Text = "Connection successful";
+                //connection.Close();
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 MessageBox.Show($"Error, {ex}");
             }
@@ -40,15 +40,15 @@ namespace database3test
             OleDbCommand command = new OleDbCommand();
             command.Connection = connection;
             command.CommandText = $"select * from Users where Username = '{txt_Username.Text} ' AND Pass = '{txt_Password.Text}'";
-            OleDbDataReader reader = command.ExecuteReader();
+            OleDbDataReader reader = command.ExecuteReader(); 
             int count = 0;
             while (reader.Read())
             {
-                count++;
+                count++; 
             }
-            if (count == 1)
+            if (count == 1) 
             {
-                MessageBox.Show("Username and password are correct");
+                //MessageBox.Show("Username and password are correct");
                 connection.Close();
                 connection.Dispose();
                 this.Hide();
@@ -58,15 +58,14 @@ namespace database3test
                 f2.Show();
 
             }
-            else if (count > 1)
-            {
-                MessageBox.Show("Duplicate username and pass");
-            }
-            else if (count < 1) { MessageBox.Show("Incorrect username or password"); }
+            else if (count > 1) 
+            { 
+                MessageBox.Show("Duplicate username and pass"); 
+            } 
+            else if (count < 1) { MessageBox.Show("Incorrect username or password");}
 
 
             connection.Close();
-
         }
     }
 }
