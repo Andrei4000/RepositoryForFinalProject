@@ -115,7 +115,25 @@ namespace database3test
         } // WORKS FINE
         public void updatemoneylabel()
         {
-           
+            try
+            {
+                connection.Open();
+                OleDbCommand command = new OleDbCommand();
+                command.Connection = connection;
+                string query = $"select * from Users where Username='{User}'";
+                command.CommandText = query;
+                OleDbDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    lblGroceryMoney.Text = reader["Balance"].ToString() + "$";
+                    usermoney = Convert.ToDouble(reader["Balance"]);
+                }
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error, {ex}");
+            }
         }
      
         public void LoadSchedule() // DELETE THE MESSAGEBOX
@@ -156,7 +174,36 @@ namespace database3test
      
         public void LoadGroceries() // DELETE MESSAGEBOX
         {
-   
+            lbGroceries.Items.Clear();
+
+            try
+            {
+                connection.Open();
+                OleDbCommand command = new OleDbCommand();
+                command.Connection = connection;
+                string query = $"select * from Groceries";
+                //MessageBox.Show(query); // TO DELETE
+                command.CommandText = query;
+                OleDbDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    if (reader["PaidFor"].ToString() == "NO")
+                    {
+                        double quantity = Convert.ToDouble(reader["Quantity"]);
+                        double price = Convert.ToDouble(reader["Price"]);
+                        double yourshare = price * quantity / nrusers;
+                        string add = yourshare.ToString("0.00");
+                        string toadd = reader["Quantity"].ToString() + " " + reader["Item"].ToString() + " at price: " + reader["Price"].ToString() + $", your share: { add}";
+                        lbGroceries.Items.Add(toadd);
+                    }
+                }
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error, {ex}");
+            }
+
         }
 
         public void LoadParty() // DELETE THE MESSAGEBOX
@@ -293,8 +340,157 @@ namespace database3test
 
         private void btnGroceryPay_Click(object sender, EventArgs e)
         {
-           
-               
+            //split the string
+            List<string> payers = new List<string>();
+            List<string> items = new List<string>();
+            List<string> itemsprice = new List<string>();
+            List<string> buyers = new List<string>();
+            double topay = 0;
+            string whopaid = "";
+            int nr = 0;
+            foreach (var item in lbGroceries.SelectedItems)
+            {
+                int i = 1;
+                string[] words = item.ToString().Split(' ');
+                foreach (var word in words)
+                {
+                    if (i == 2)
+                    {
+                        items.Add(word);
+
+                    }
+                    else if (i == 8)
+                    {
+                        topay = topay + Convert.ToDouble(word);
+                        itemsprice.Add(word);
+                    }
+                    i++;
+                }
+
+            }
+            if (topay > usermoney)
+            {
+                MessageBox.Show("Not enough money to pay for it all");
+            }
+            else
+            {
+                bool dontupdate = false;
+                foreach (string item in items)
+                {
+                    whopaid = "";
+                    {//pull the whopaid list
+                        connection.Open();
+                        OleDbCommand command = new OleDbCommand();
+                        command.Connection = connection;
+                        string query = $"select * from Groceries where Item='{item}'";
+                        // MessageBox.Show(query);
+                        command.CommandText = query;
+                        OleDbDataReader reader = command.ExecuteReader();
+                        while (reader.Read())
+                        {
+                            whopaid = reader["WhoPaid"].ToString();
+                            payers.Add(whopaid);
+                        }
+                        // MessageBox.Show("Data Edit Successful");
+                        connection.Close();
+                    }
+                    bool paidfor = false;
+                    nr = 0;
+                    string[] words = whopaid.Split(' ');
+                    foreach (string word in words)
+                    {
+                        if (word == User)
+                            paidfor = true;
+                        if (nr == 0)
+                            buyers.Add(word);
+                        nr++;
+                    }
+
+                    if (!paidfor)
+                    {
+
+                    }
+                    else
+                    {
+                        MessageBox.Show("You've already paid for one of these items");
+                        dontupdate = true;
+                        break;
+                    }
+                }
+                if (!dontupdate)
+                {// updating user's money
+                    try
+                    {
+                        connection.Open();
+                        usermoney = usermoney - topay;
+                        OleDbCommand work = new OleDbCommand();
+                        work.Connection = connection;
+                        string query = $"update Users set Balance='{usermoney}' where Username='{User}'";
+                        //MessageBox.Show(query);
+                        work.CommandText = query;
+                        work.ExecuteNonQuery();
+                        // MessageBox.Show("Data Edit Successful");
+                        connection.Close();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Error, {ex}");
+                    }
+                    int i = 0;
+                    foreach (string item in items)
+                    {
+                        connection.Open();
+                        OleDbCommand work = new OleDbCommand();
+                        work.Connection = connection;
+                        whopaid = payers[i] + " " + User;
+                        string query = "";
+                        if (nr + 1 != nrusers)
+                            query = $"update Groceries set WhoPaid='{whopaid}' where Item='{item}'";
+                        else
+                        {
+                            query = $"update Groceries set WhoPaid='{whopaid}',PaidFor='YES' where Item='{item}'";
+                            { // giving the buyer their money back
+                                double moneytoadd = 0;
+
+                                OleDbCommand buymoney = new OleDbCommand();
+                                buymoney.Connection = connection;
+                                string toaddmoney = $"select * from Users where Username='{buyers[i]}'";
+                                // MessageBox.Show(query);
+                                buymoney.CommandText = toaddmoney;
+                                OleDbDataReader reader = buymoney.ExecuteReader();
+                                while (reader.Read())
+                                {
+                                    moneytoadd = Convert.ToDouble(reader["Balance"]);
+                                }
+                                // MessageBox.Show("Data Edit Successful");
+                                connection.Close();
+                                connection.Open();
+
+                                string toupdate = $"update Users set Balance='{moneytoadd + Convert.ToDouble(itemsprice[i]) * (nrusers - 1)}' where Username='{buyers[i]}'";
+                                OleDbCommand buy = new OleDbCommand();
+                                buy.Connection = connection;
+                                MessageBox.Show(toupdate);
+                                buy.CommandText = toupdate;
+                                buy.ExecuteNonQuery();
+                                connection.Close();
+                                connection.Open();
+                            }
+                        }
+                        MessageBox.Show(query);
+                        work.CommandText = query;
+                        work.ExecuteNonQuery();
+                        // MessageBox.Show("Data Edit Successful");
+                        connection.Close();
+                        i++;
+                    }
+                }
+                LoadGroceries();
+                updatemoneylabel();
+
+            }
+
+            //count how many paid for it
+
         }
 
         private void Form2_Load(object sender, EventArgs e)
@@ -309,7 +505,49 @@ namespace database3test
 
         private void btnGAdd_Click(object sender, EventArgs e)
         {
-           
+            if (!string.IsNullOrEmpty(tbGName.Text) && !string.IsNullOrEmpty(tbGPrice.Text) && !string.IsNullOrEmpty(tbGQuantity.Text))
+            {
+                double price = Convert.ToDouble(tbGPrice.Text);
+                int quantity = Convert.ToInt32(tbGQuantity.Text);
+                usermoney = usermoney - (price * quantity) / nrusers;
+                try
+                {
+                    connection.Open();
+                    OleDbCommand command = new OleDbCommand();
+                    command.Connection = connection;
+                    command.CommandText = $"insert into Groceries (Item,Price,Quantity,WhoPaid,PaidFor) values('{tbGName.Text}','{price.ToString("0.00")}','{quantity}','{User}','NO')";
+                    command.ExecuteNonQuery();
+                    MessageBox.Show("Data Saved");
+                    connection.Close();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error, {ex}");
+                }
+                try
+                {
+                    connection.Open();
+                    OleDbCommand work = new OleDbCommand();
+                    work.Connection = connection;
+                    string query = $"update Users set Balance='{usermoney}' where Username='{User}'";
+                    MessageBox.Show(query);
+                    work.CommandText = query;
+                    work.ExecuteNonQuery();
+                    // MessageBox.Show("Data Edit Successful");
+                    connection.Close();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error, {ex}");
+                }
+
+                LoadGroceries();
+                updatemoneylabel();
+            }
+            else
+            {
+                MessageBox.Show("Enter an accepted value");
+            }
         }
 
         private void Form2_FormClosed(object sender, FormClosedEventArgs e)
@@ -368,7 +606,26 @@ namespace database3test
 
         private void btnAddBalance_Click(object sender, EventArgs e)
         {
-           
+            if (!string.IsNullOrWhiteSpace(tbAddBalance.Text))
+            {
+                usermoney = usermoney + Convert.ToDouble(tbAddBalance.Text);
+                connection.Open();
+                OleDbCommand work = new OleDbCommand();
+                work.Connection = connection;
+                string query = $"update Users set Balance='{usermoney}' where Username='{User}'";
+                MessageBox.Show(query);
+                work.CommandText = query;
+                work.ExecuteNonQuery();
+                // MessageBox.Show("Data Edit Successful");
+                connection.Close();
+                updatemoneylabel();
+                tbAddBalance.Text = "Enter an amount";
+                tbAddBalance.ForeColor = Color.Gray;
+            }
+            else
+            {
+                MessageBox.Show("Input a valid value.");
+            }
         }
         public void LoadHomePage()
         {
@@ -423,6 +680,11 @@ namespace database3test
         private void btnChangePassword_Click(object sender, EventArgs e)
         {
            
+        }
+
+        private void tabPage6_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
