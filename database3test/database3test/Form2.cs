@@ -39,6 +39,7 @@ namespace database3test
                 tabControl1.TabPages.Remove(tabPage8);
                 tabControl1.TabPages.Remove(tabPage9);
                 LoadReport();
+                label17.Visible = false;
             }
             else
             {
