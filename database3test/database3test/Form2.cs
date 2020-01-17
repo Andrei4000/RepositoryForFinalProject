@@ -277,13 +277,28 @@ namespace database3test
 
         private void btnAddParty_Click(object sender, EventArgs e)
         {
-            string dateparty = dtpParty.Value.ToString("dd/MM/yyyy");
+
+        }
+
+        private void btnView_Click(object sender, EventArgs e)
+        {
+  
+        }// works
+
+        private void btnYes_Click(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void btnReport_Click(object sender, EventArgs e)
+        {
             try
             {
                 connection.Open();
                 OleDbCommand command = new OleDbCommand();
                 command.Connection = connection;
-                command.CommandText = $"insert into Party (PartyName,Description,YesVotes,NoVotes,WhoVoted,Dateof) values('{tbPartyName.Text}','{rtbDescParty.Text}','1','0','{User}','{dateparty}')";
+                string date = System.DateTime.Now.ToString();
+                command.CommandText = $"insert into Reports (Title,Username,Description,Dateissued) values('{tbReport.Text}','{User}','{rtbReport.Text}','{date}')";
                 command.ExecuteNonQuery();
                 MessageBox.Show("Data Saved");
                 connection.Close();
@@ -292,96 +307,7 @@ namespace database3test
             {
                 MessageBox.Show($"Error, {ex}");
             }
-            LoadParty();
-            LoadHomePage();
-            tbPartyName.Text = "";
-            rtbDescParty.Text = "";
-        }
-
-        private void btnView_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                connection.Open();
-                OleDbCommand command = new OleDbCommand();
-                command.Connection = connection;
-                string query = $"select * from Party WHERE PartyName='{cbParty.SelectedItem}'";
-                MessageBox.Show(query); // TO DELETE
-                command.CommandText = query;
-                OleDbDataReader reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-
-                    MessageBox.Show(reader["Description"].ToString());
-                }
-                connection.Close();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error, {ex}");
-            }
-        }// works
-
-        private void btnYes_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                connection.Open();
-                OleDbCommand command = new OleDbCommand();
-                command.Connection = connection;
-                string query = $"select * from Party WHERE PartyName='{cbParty.SelectedItem}'";
-                MessageBox.Show(query); // TO DELETE
-                command.CommandText = query;
-                OleDbDataReader reader = command.ExecuteReader();
-                string tosplit = "";
-                string votes = "";
-                while (reader.Read())
-                {
-                    tosplit = reader["WhoVoted"].ToString();
-                    votes = reader["YesVotes"].ToString();
-                }
-                string tosave = tosplit + $" {User}";// updating the who voted list
-                // see who voted
-                bool alreadyvoted = false;
-                string[] words = tosplit.Split(' ');
-                foreach (var word in words)
-                {
-                    if (word == User)
-                    {
-                        alreadyvoted = true;
-                    }
-                }
-                connection.Close();
-                // count the  votes
-
-                votes = (Convert.ToInt32(votes) + 1).ToString();
-                if (alreadyvoted == true)
-                    MessageBox.Show("You have already voted on this party");
-                else
-                {
-                    connection.Open();
-                    OleDbCommand work = new OleDbCommand();
-                    work.Connection = connection;
-                    query = $"update Party set WhoVoted='{tosave}', YesVotes='{votes}' where PartyName='{cbParty.SelectedItem.ToString()}'";
-                    MessageBox.Show(query);
-                    work.CommandText = query;
-                    work.ExecuteNonQuery();
-                    MessageBox.Show("Data Edit Successful");
-                    connection.Close();
-                }
-
-
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error, {ex}");
-            }
-            LoadHomePage();
-        }
-
-        private void btnReport_Click(object sender, EventArgs e)
-        {
-           
+            LoadReport();
         }
 
         private void btnViewReport_Click(object sender, EventArgs e)
@@ -412,59 +338,7 @@ namespace database3test
 
         private void btnNo_Click(object sender, EventArgs e)
         {
-            try
-            {
-                connection.Open();
-                OleDbCommand command = new OleDbCommand();
-                command.Connection = connection;
-                string query = $"select * from Party WHERE PartyName='{cbParty.SelectedItem}'";
-                MessageBox.Show(query); // TO DELETE
-                command.CommandText = query;
-                OleDbDataReader reader = command.ExecuteReader();
-                string tosplit = "";
-                string votes = "";
-                while (reader.Read())
-                {
-                    tosplit = reader["WhoVoted"].ToString();
-                    votes = reader["NoVotes"].ToString();
-                }
-                string tosave = tosplit + $" {User}";// updating the who voted list
-                // see who voted
-                bool alreadyvoted = false;
-                string[] words = tosplit.Split(' ');
-                foreach (var word in words)
-                {
-                    if (word == User)
-                    {
-                        alreadyvoted = true;
-                    }
-                }
-                connection.Close();
-                // count the  votes
-
-                votes = (Convert.ToInt32(votes) + 1).ToString();
-                if (alreadyvoted == true)
-                    MessageBox.Show("You have already voted on this party");
-                else
-                {
-                    connection.Open();
-                    OleDbCommand work = new OleDbCommand();
-                    work.Connection = connection;
-                    query = $"update Party set WhoVoted='{tosave}', NoVotes='{votes}' where PartyName='{cbParty.SelectedItem.ToString()}'";
-                    MessageBox.Show(query);
-                    work.CommandText = query;
-                    work.ExecuteNonQuery();
-                    MessageBox.Show("Data Edit Successful");
-                    connection.Close();
-                }
-
-
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error, {ex}");
-            }
-            LoadHomePage();
+           
         }
 
         private void label5_Click(object sender, EventArgs e)
