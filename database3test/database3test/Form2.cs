@@ -55,6 +55,64 @@ namespace database3test
             }
 
         }
+        public bool DateCompare(string sysdate, string databasedate)
+        {
+
+
+            string[] words = sysdate.Split('/');
+            int i = 1;
+            string d1 = "", d2 = "", m1 = "", m2 = "", y1 = "", y2 = "";
+            foreach (var word in words)
+            {
+                if (i == 1)
+                {
+                    d1 = word;
+                }
+                else if (i == 2)
+                {
+                    m1 = word;
+                }
+                else if (i == 3)
+                {
+                    y1 = word;
+                }
+                i++;
+            }
+            i = 1;
+            string[] words1 = databasedate.Split('/');
+            foreach (var word in words1)
+            {
+                if (i == 1)
+                {
+                    d2 = word;
+                }
+                else if (i == 2)
+                {
+                    m2 = word;
+                }
+                else if (i == 3)
+                {
+                    y2 = word;
+                }
+                i++;
+            }
+            if (Convert.ToInt32(y2) > Convert.ToInt32(y1))
+            { return true; }
+            else
+            {
+                if (Convert.ToInt32(y2) >= Convert.ToInt32(y1) && Convert.ToInt32(m2) > Convert.ToInt32(m1))
+                { return true; }
+                else
+                {
+                    if (Convert.ToInt32(y2) >= Convert.ToInt32(y1) && Convert.ToInt32(m2) >= Convert.ToInt32(m1) && Convert.ToInt32(d2) >= Convert.ToInt32(d1))
+                        return true;
+                }
+            }
+
+
+
+            return false;
+        } // WORKS FINE
         public void updatemoneylabel()
         {
            
@@ -62,7 +120,38 @@ namespace database3test
      
         public void LoadSchedule() // DELETE THE MESSAGEBOX
         {
-            
+            lbGarbage.Items.Clear();
+            lbCleaning.Items.Clear();
+            try
+            {
+                connection.Open();
+                OleDbCommand command = new OleDbCommand();
+                command.Connection = connection;
+                string query = $"select * from Schedule where username='{User}'";
+                // MessageBox.Show(query); // TO DELETE
+                command.CommandText = query;
+                OleDbDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+
+                    if (reader["Typeof"].ToString() == "Garbage")
+                    {
+                        if (DateCompare(appDate, reader["Dateof"].ToString()))
+                            lbGarbage.Items.Add("You're on for: " + reader["Dateof"]);
+
+                    }
+                    if (reader["Typeof"].ToString() == "Cleaning")
+                    {
+                        if (DateCompare(appDate, reader["Dateof"].ToString()))
+                            lbCleaning.Items.Add("You're on for: " + reader["Dateof"]);
+                    }
+                }
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error, {ex}");
+            }
         }
      
         public void LoadGroceries() // DELETE MESSAGEBOX
@@ -197,7 +286,9 @@ namespace database3test
 
         private void btnDate_Click(object sender, EventArgs e)
         {
-            
+            appDate = dateTimePicker1.Value.ToString("dd/MM/yyyy");
+            LoadSchedule();
+            LoadHomePage();
         }
 
         private void btnGroceryPay_Click(object sender, EventArgs e)
@@ -281,6 +372,38 @@ namespace database3test
         }
         public void LoadHomePage()
         {
+            lbHomepage.Items.Clear();
+            try
+            {
+                connection.Open();
+                OleDbCommand command = new OleDbCommand();
+                command.Connection = connection;
+                string query = $"select * from Party";
+                // MessageBox.Show(query); // TO DELETE
+                command.CommandText = query;
+                OleDbDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    bool compare = DateCompare(appDate, reader["Dateof"].ToString());
+                    if (Convert.ToInt32(reader["YesVotes"]) >= nrusers / 2)
+                    {
+                        if (compare)
+                            lbHomepage.Items.Add(reader["PartyName"] + " is happening as it got enough votes.Check it out in the parties tab.");
+
+                    }
+                    else
+                    {
+                        if (compare)
+                            lbHomepage.Items.Add(reader["PartyName"] + " doesnt have enough votes go vote for it");
+                    }
+
+                }
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error, {ex}");
+            }
         }
 
         private void tbAddBalance_Click(object sender, EventArgs e)
