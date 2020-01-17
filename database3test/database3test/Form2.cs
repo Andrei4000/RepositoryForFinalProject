@@ -83,12 +83,45 @@ namespace database3test
 
         private void btn_Save_Click(object sender, EventArgs e)
         {
-      
+            try
+            {
+                connection.Open();
+                OleDbCommand command = new OleDbCommand();
+                command.Connection = connection;
+                string username = txt_fname.Text + txt_room.Text;
+                command.CommandText = $"insert into Users (Username, Pass, Balance, FirstName, LastName, Room) values ('{username}', '{txt_Password.Text}', '0', '{txt_fname.Text}', '{txt_lname.Text}', '{txt_room.Text}')";
+                //command.CommandText = $"insert into Users (FirstName,LastName,Pay) values('{txt_fname.Text.}','{txt_lname.Text}','{Convert.ToInt32(txt_pay.Text)}')";
+                command.ExecuteNonQuery();
+                MessageBox.Show("Data Saved");
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error, {ex}");
+            }
+
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
+            try
+            {
+                connection.Open();
+                OleDbCommand command = new OleDbCommand();
+                command.Connection = connection;
+                string query = $"update Users set Pass ='{txt_Password.Text}', FirstName='{txt_fname.Text}', LastName='{txt_lname.Text}' where Room='{txt_room.Text}'";
+                //string query = $"update Users set FirstName='{txt_fname.Text}', LastName='{txt_lname.Text}', Pay ='{txt_pay.Text}' where ID={txt_id.Text}  ";
 
+                MessageBox.Show(query);
+                command.CommandText = query;
+                command.ExecuteNonQuery();
+                MessageBox.Show("Data Edit Successful");
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error, {ex}");
+            }
         }
 
         private void tabPage1_Click(object sender, EventArgs e)
@@ -129,7 +162,27 @@ namespace database3test
         private void btnViewReport_Click(object sender, EventArgs e)
         {
 
-           
+            try
+            {
+                connection.Open();
+                OleDbCommand command = new OleDbCommand();
+                command.Connection = connection;
+                string query = $"select * from Reports Where Title='{cbReport.SelectedItem}'";
+                MessageBox.Show(query); // TO DELETE
+                command.CommandText = query;
+                OleDbDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+
+                    MessageBox.Show("The report was made on " + reader["Dateissued"] + " by the user " + reader["Username"] + " with the following description: " + reader["Description"]);
+                }
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error, {ex}");
+            }
+            LoadReport();
         }
 
         private void btnNo_Click(object sender, EventArgs e)
@@ -182,11 +235,44 @@ namespace database3test
 
         private void btnScheduleAdd_Click(object sender, EventArgs e)
         {
-           
+            string date = dateTimePicker1.Value.ToString("dd/MM/yyyy");
+            string susername = "";
+
+            {
+                connection.Open();
+                OleDbCommand command = new OleDbCommand();
+                command.Connection = connection;
+                string query = $"select * from Users where Room='{tbScheduleRoom.Text}'";
+                // MessageBox.Show(query);
+                command.CommandText = query;
+                OleDbDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    susername = reader["Username"].ToString();
+                }
+                // MessageBox.Show("Data Edit Successful");
+                connection.Close();
+            }
+            {
+                connection.Open();
+                OleDbCommand command = new OleDbCommand();
+                command.Connection = connection;
+                command.CommandText = $"insert into Schedule (TypeOf,Room,username,Dateof) values('{cbSchedule.SelectedItem}','{tbScheduleRoom.Text}','{susername}','{date}')";
+                command.ExecuteNonQuery();
+                MessageBox.Show("Data Saved");
+                connection.Close();
+            }
         }
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
+            connection.Open();
+            OleDbCommand command = new OleDbCommand();
+            command.Connection = connection;
+            command.CommandText = $"DELETE FROM Users WHERE Room='{txt_room.Text}';";
+            command.ExecuteNonQuery();
+            MessageBox.Show("Data Saved");
+            connection.Close();
         }
 
         private void btnAddBalance_Click(object sender, EventArgs e)
