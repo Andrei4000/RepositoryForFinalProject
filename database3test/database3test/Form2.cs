@@ -25,9 +25,35 @@ namespace database3test
 
         public Form2(string Username)
         {
-           
-            
-            
+
+            InitializeComponent();
+            User = Username;
+            connection.ConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\andre\Desktop\users1.accdb;Persist Security Info=False;";
+            if (User == "admin")
+            {
+                tabControl1.TabPages.Remove(tabPage2);
+                tabControl1.TabPages.Remove(tabPage3);
+                tabControl1.TabPages.Remove(tabPage4);
+                tabControl1.TabPages.Remove(tabPage5);
+                tabControl1.TabPages.Remove(tabPage6);
+                tabControl1.TabPages.Remove(tabPage7);
+                tabControl1.TabPages.Remove(tabPage8);
+                // tabControl1.TabPages.Remove(tabPage9);
+            }
+            else
+            {
+                //nrusers = users() - 1;
+                LoadSchedule();
+                LoadGroceries();
+                updatemoneylabel();
+                LoadParty();
+                LoadReport();
+                LoadHomePage();
+                MessageBox.Show(appDate);
+                tabControl1.TabPages.Remove(tabPage1);
+                label17.Text = $"Welcome, {User}";
+            }
+
         }
         public void updatemoneylabel()
         {
