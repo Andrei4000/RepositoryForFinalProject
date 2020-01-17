@@ -27,7 +27,7 @@ namespace database3test
         {
             InitializeComponent();
             User = Username;
-            connection.ConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\Joro\Desktop\users1.accdb;Persist Security Info=False;";
+            connection.ConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\andre\Desktop\users1.accdb;Persist Security Info=False;";
             if (User == "admin")
             {
                 tabControl1.TabPages.Remove(tabPage2);
@@ -37,7 +37,7 @@ namespace database3test
                 tabControl1.TabPages.Remove(tabPage6);
                 tabControl1.TabPages.Remove(tabPage7);
                 tabControl1.TabPages.Remove(tabPage8);
-                // tabControl1.TabPages.Remove(tabPage9);
+                tabControl1.TabPages.Remove(tabPage9);
                 LoadReport();
             }
             else
@@ -705,7 +705,7 @@ namespace database3test
 
         private void Form2_Load(object sender, EventArgs e)
         {
-           spArduino.Open();
+           //spArduino.Open();
         }
 
         private void Form2_FormClosing(object sender, FormClosingEventArgs e)
@@ -765,7 +765,7 @@ namespace database3test
 
         private void Form2_FormClosed(object sender, FormClosedEventArgs e)
         {
-           spArduino.Close();
+           //spArduino.Close();
         }
 
        
@@ -984,6 +984,22 @@ namespace database3test
         private void rtbDescParty_TextChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void btnRemoveReport_Click(object sender, EventArgs e)
+        {
+            if (cbReport.SelectedIndex >= 0)
+            {
+                connection.Open();
+                OleDbCommand command = new OleDbCommand();
+                command.Connection = connection;
+                command.CommandText = $"DELETE FROM Reports WHERE Title='{cbReport.SelectedItem}'";
+                command.ExecuteNonQuery();
+                MessageBox.Show("Data Saved");
+                connection.Close();
+                cbReport.Items.RemoveAt(cbReport.SelectedIndex);
+                cbReport.Text = ""
+;            }
         }
     }
 }

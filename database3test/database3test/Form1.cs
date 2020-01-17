@@ -17,7 +17,7 @@ namespace database3test
         public Form1()
         {
             InitializeComponent();
-            connection.ConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\Joro\Desktop\users1.accdb;Persist Security Info=False;";
+            connection.ConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\andre\Desktop\users1.accdb;Persist Security Info=False;";
         }
 
         private void Form1_Load(object sender, EventArgs e)
