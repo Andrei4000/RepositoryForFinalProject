@@ -566,6 +566,7 @@ namespace database3test
             appDate = dateTimePicker1.Value.ToString("dd/MM/yyyy");
             LoadSchedule();
             LoadHomePage();
+            LoadParty();
         }
 
         private void btnGroceryPay_Click(object sender, EventArgs e)
@@ -655,7 +656,7 @@ namespace database3test
                         usermoney = usermoney - topay;
                         OleDbCommand work = new OleDbCommand();
                         work.Connection = connection;
-                        string query = $"update Users set Balance='{usermoney}' where Username='{User}'";
+                        string query = $"update Users set Balance='{usermoney.ToString("0.00")}' where Username='{User}'";
                         //MessageBox.Show(query);
                         work.CommandText = query;
                         work.ExecuteNonQuery();
@@ -696,7 +697,7 @@ namespace database3test
                                 connection.Close();
                                 connection.Open();
 
-                                string toupdate = $"update Users set Balance='{moneytoadd + Convert.ToDouble(itemsprice[i]) * (nrusers - 1)}' where Username='{buyers[i]}'";
+                                string toupdate = $"update Users set Balance='{moneytoadd.ToString("0.00") + Convert.ToDouble(itemsprice[i]) * (nrusers - 1)}' where Username='{buyers[i]}'";
                                 OleDbCommand buy = new OleDbCommand();
                                 buy.Connection = connection;
                                 MessageBox.Show(toupdate);
@@ -762,7 +763,7 @@ namespace database3test
                     connection.Open();
                     OleDbCommand work = new OleDbCommand();
                     work.Connection = connection;
-                    string query = $"update Users set Balance='{usermoney}' where Username='{User}'";
+                    string query = $"update Users set Balance='{usermoney.ToString("0.00")}' where Username='{User}'";
                     MessageBox.Show(query);
                     work.CommandText = query;
                     work.ExecuteNonQuery();
@@ -771,7 +772,7 @@ namespace database3test
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Error, {ex}");
+                    //MessageBox.Show($"Error, {ex}");
                 }
 
                 LoadGroceries();
