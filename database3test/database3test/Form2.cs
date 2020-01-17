@@ -25,7 +25,6 @@ namespace database3test
 
         public Form2(string Username)
         {
-
             InitializeComponent();
             User = Username;
             connection.ConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\andre\Desktop\users1.accdb;Persist Security Info=False;";
@@ -42,7 +41,7 @@ namespace database3test
             }
             else
             {
-                //nrusers = users() - 1;
+                nrusers = users() - 1;
                 LoadSchedule();
                 LoadGroceries();
                 updatemoneylabel();
@@ -54,6 +53,81 @@ namespace database3test
                 label17.Text = $"Welcome, {User}";
             }
 
+
+        }
+        public void updatemoneylabel()
+        {
+            try
+            {
+                connection.Open();
+                OleDbCommand command = new OleDbCommand();
+                command.Connection = connection;
+                string query = $"select * from Users where Username='{User}'";
+                command.CommandText = query;
+                OleDbDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    lblGroceryMoney.Text = reader["Balance"].ToString() + "$";
+                    usermoney = Convert.ToDouble(reader["Balance"]);
+                }
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error, {ex}");
+            }
+        }
+        public int users()
+        {
+            connection.Open();
+            OleDbCommand command = new OleDbCommand();
+            command.Connection = connection;
+            string query = $"select * from Users";
+            command.CommandText = query;
+            OleDbDataReader reader = command.ExecuteReader();
+            int togive = 0;
+            while (reader.Read())
+            {
+                togive++;
+            }
+            connection.Close();
+            return togive;
+
+        }// WORKS
+        public void LoadSchedule() // DELETE THE MESSAGEBOX
+        {
+            lbGarbage.Items.Clear();
+            lbCleaning.Items.Clear();
+            try
+            {
+                connection.Open();
+                OleDbCommand command = new OleDbCommand();
+                command.Connection = connection;
+                string query = $"select * from Schedule where username='{User}'";
+                // MessageBox.Show(query); // TO DELETE
+                command.CommandText = query;
+                OleDbDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+
+                    if (reader["Typeof"].ToString() == "Garbage")
+                    {
+                        if (DateCompare(appDate, reader["Dateof"].ToString()))
+                            lbGarbage.Items.Add("You're on for: " + reader["Dateof"]);
+
+                    }
+                    if (reader["Typeof"].ToString() == "Cleaning")
+                    {
+                        if (DateCompare(appDate, reader["Dateof"].ToString()))
+                            lbCleaning.Items.Add("You're on for: " + reader["Dateof"]);
+                    }
+                }
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error, {ex}");
+            }
         }
         public bool DateCompare(string sysdate, string databasedate)
         {
@@ -113,65 +187,7 @@ namespace database3test
 
             return false;
         } // WORKS FINE
-        public void updatemoneylabel()
-        {
-            try
-            {
-                connection.Open();
-                OleDbCommand command = new OleDbCommand();
-                command.Connection = connection;
-                string query = $"select * from Users where Username='{User}'";
-                command.CommandText = query;
-                OleDbDataReader reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    lblGroceryMoney.Text = reader["Balance"].ToString() + "$";
-                    usermoney = Convert.ToDouble(reader["Balance"]);
-                }
-                connection.Close();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error, {ex}");
-            }
-        }
-     
-        public void LoadSchedule() // DELETE THE MESSAGEBOX
-        {
-            lbGarbage.Items.Clear();
-            lbCleaning.Items.Clear();
-            try
-            {
-                connection.Open();
-                OleDbCommand command = new OleDbCommand();
-                command.Connection = connection;
-                string query = $"select * from Schedule where username='{User}'";
-                // MessageBox.Show(query); // TO DELETE
-                command.CommandText = query;
-                OleDbDataReader reader = command.ExecuteReader();
-                while (reader.Read())
-                {
 
-                    if (reader["Typeof"].ToString() == "Garbage")
-                    {
-                        if (DateCompare(appDate, reader["Dateof"].ToString()))
-                            lbGarbage.Items.Add("You're on for: " + reader["Dateof"]);
-
-                    }
-                    if (reader["Typeof"].ToString() == "Cleaning")
-                    {
-                        if (DateCompare(appDate, reader["Dateof"].ToString()))
-                            lbCleaning.Items.Add("You're on for: " + reader["Dateof"]);
-                    }
-                }
-                connection.Close();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error, {ex}");
-            }
-        }
-     
         public void LoadGroceries() // DELETE MESSAGEBOX
         {
             lbGroceries.Items.Clear();
@@ -203,17 +219,56 @@ namespace database3test
             {
                 MessageBox.Show($"Error, {ex}");
             }
-
         }
 
         public void LoadParty() // DELETE THE MESSAGEBOX
         {
-       
+            cbParty.Items.Clear();
+            try
+            {
+                connection.Open();
+                OleDbCommand command = new OleDbCommand();
+                command.Connection = connection;
+                string query = $"select * from Party";
+                MessageBox.Show(query); // TO DELETE
+                command.CommandText = query;
+                OleDbDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    if (DateCompare(appDate, reader["Dateof"].ToString()))
+                        cbParty.Items.Add(reader["PartyName"]);
+                }
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error, {ex}");
+            }
         }
 
         public void LoadReport() // DELETE THE MESSAGEBOX
         {
-       
+            cbReport.Items.Clear();
+            try
+            {
+                connection.Open();
+                OleDbCommand command = new OleDbCommand();
+                command.Connection = connection;
+                string query = $"select * from Reports";
+                MessageBox.Show(query); // TO DELETE
+                command.CommandText = query;
+                OleDbDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+
+                    cbReport.Items.Add(reader["Title"]);
+                }
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error, {ex}");
+            }
         }
 
 
@@ -235,7 +290,6 @@ namespace database3test
             {
                 MessageBox.Show($"Error, {ex}");
             }
-
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -320,6 +374,26 @@ namespace database3test
             {
                 MessageBox.Show($"Error, {ex}");
             }
+            try
+            {
+                connection.Open();
+                OleDbCommand command = new OleDbCommand();
+                command.Connection = connection;
+                string query = $"select * from Party WHERE PartyName='{cbParty.SelectedItem}'";
+                MessageBox.Show(query); // TO DELETE
+                command.CommandText = query;
+                OleDbDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+
+                    MessageBox.Show(reader["Description"].ToString());
+                }
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error, {ex}");
+            }
         }// works
 
         private void btnYes_Click(object sender, EventArgs e)
@@ -381,7 +455,22 @@ namespace database3test
 
         private void btnReport_Click(object sender, EventArgs e)
         {
-           
+            try
+            {
+                connection.Open();
+                OleDbCommand command = new OleDbCommand();
+                command.Connection = connection;
+                string date = System.DateTime.Now.ToString();
+                command.CommandText = $"insert into Reports (Title,Username,Description,Dateissued) values('{tbReport.Text}','{User}','{rtbReport.Text}','{date}')";
+                command.ExecuteNonQuery();
+                MessageBox.Show("Data Saved");
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error, {ex}");
+            }
+            LoadReport();
         }
 
         private void btnViewReport_Click(object sender, EventArgs e)
@@ -636,12 +725,15 @@ namespace database3test
 
         private void Form2_Load(object sender, EventArgs e)
         {
-           // spArduino.Open();
+            // spArduino.Open();
         }
 
         private void Form2_FormClosing(object sender, FormClosingEventArgs e)
         {
-           
+            this.Hide();
+            e.Cancel = true;
+            Form1 f1 = new Form1();
+            f1.Show();
         }
 
         private void btnGAdd_Click(object sender, EventArgs e)
@@ -693,14 +785,42 @@ namespace database3test
 
         private void Form2_FormClosed(object sender, FormClosedEventArgs e)
         {
-           // spArduino.Close();
+            // spArduino.Close();
         }
 
-       
+
 
         private void timer2_Tick(object sender, EventArgs e)
         {
-           
+            clock = DateTime.Now.ToString("HH:mm:ss");
+            if (spArduino.BytesToRead > 4)
+            {
+                line = spArduino.ReadLine();
+                line = line.Trim();
+                double lightValue = Convert.ToDouble(line);
+                if (lightValue > 500 && alarm == false)
+                {
+                    lbxOutput.Items.Add($"{clock} Bathroom is occupied");
+                    alarm = true;
+                }
+                else if (alarm == true && lightValue < 500)
+                {
+                    lbxOutput.Items.Add($"{clock} Bathroom is free");
+                    alarm = false;
+                }
+            }
+            if (lbxOutput.Items.Count > 10)
+            {
+                lbxOutput.Items.RemoveAt(0);
+            }
+            if (alarm == true)
+            {
+                pbAlarm.BackColor = Color.Red;
+            }
+            else
+            {
+                pbAlarm.BackColor = Color.Green;
+            }
         }
 
         private void btnScheduleAdd_Click(object sender, EventArgs e)
@@ -806,6 +926,7 @@ namespace database3test
 
         private void tbAddBalance_Click(object sender, EventArgs e)
         {
+            tbAddBalance.Text = "";
         }
 
         private void lblGroceryMoney_Click(object sender, EventArgs e)
@@ -820,17 +941,29 @@ namespace database3test
 
         private void btnChangePassword_Click(object sender, EventArgs e)
         {
-           
-        }
+            try
+            {
+                connection.Open();
+                OleDbCommand command = new OleDbCommand();
+                command.Connection = connection;
+                string query = $"update Users set Pass ='{tbChangePassword.Text}' where Username='{User}'";
+                //string query = $"update Users set FirstName='{txt_fname.Text}', LastName='{txt_lname.Text}', Pay ='{txt_pay.Text}' where ID={txt_id.Text}  ";
 
-        private void tabPage6_Click(object sender, EventArgs e)
-        {
-
+                MessageBox.Show(query);
+                command.CommandText = query;
+                command.ExecuteNonQuery();
+                MessageBox.Show("Data Edit Successful");
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error, {ex}");
+            }
         }
     }
 }
-    
-    
-    
+
+
+
 
 
