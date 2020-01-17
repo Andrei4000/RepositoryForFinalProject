@@ -131,6 +131,7 @@
             this.spArduino = new System.IO.Ports.SerialPort(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
             this.label17 = new System.Windows.Forms.Label();
+            this.btnHouseRules = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabControl2.SuspendLayout();
@@ -1172,6 +1173,7 @@
             // 
             // tabPage9
             // 
+            this.tabPage9.Controls.Add(this.btnHouseRules);
             this.tabPage9.Controls.Add(this.label25);
             this.tabPage9.Controls.Add(this.lblMyBalance);
             this.tabPage9.Controls.Add(this.btnAddBalance);
@@ -1285,6 +1287,18 @@
             this.label17.Size = new System.Drawing.Size(313, 32);
             this.label17.TabIndex = 15;
             this.label17.Text = "Welcome, <username>";
+            // 
+            // btnHouseRules
+            // 
+            this.btnHouseRules.BackColor = System.Drawing.Color.LightCoral;
+            this.btnHouseRules.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnHouseRules.Location = new System.Drawing.Point(58, 258);
+            this.btnHouseRules.Name = "btnHouseRules";
+            this.btnHouseRules.Size = new System.Drawing.Size(128, 52);
+            this.btnHouseRules.TabIndex = 33;
+            this.btnHouseRules.Text = "House Rules";
+            this.btnHouseRules.UseVisualStyleBackColor = false;
+            this.btnHouseRules.Click += new System.EventHandler(this.btnHouseRules_Click);
             // 
             // Form2
             // 
@@ -1440,5 +1454,6 @@
         private System.Windows.Forms.Label label35;
         private System.Windows.Forms.Label label34;
         private System.Windows.Forms.Label label37;
+        private System.Windows.Forms.Button btnHouseRules;
     }
 }

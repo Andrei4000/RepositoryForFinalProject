@@ -22,11 +22,13 @@ namespace database3test
         string line;
         string clock;
         bool alarm = false;
+        string houserules = "No loud noises after dark. No smoking indoors. No guests for more than 3 days. No replacing furniture. No pets. No bikes inside the house.";
 
         public Form2(string Username)
         {
             InitializeComponent();
             User = Username;
+            
             connection.ConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\andre\Desktop\users1.accdb;Persist Security Info=False;";
             if (User == "admin")
             {
@@ -1001,6 +1003,11 @@ namespace database3test
                 cbReport.Items.RemoveAt(cbReport.SelectedIndex);
                 cbReport.Text = ""
 ;            }
+        }
+
+        private void btnHouseRules_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(houserules);
         }
     }
 }
